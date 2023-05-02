@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import "./App.css";
 
-function App() {
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetch("/user")
+        .then((res) => res.json())
+        .then((data) => setUserData(data));
+    }
+  }, [isLoggedIn]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+      {!isLoggedIn && (
+        <button
+          onClick={() => {
+            fetch("/login", { method: "post" }).then((res) => {
+              if (res.status === 200) setIsLoggedIn(true);
+            });
+          }}
         >
-          Learn React
-        </a>
-      </header>
+          Login
+        </button>
+      )}
+      <h2>User Data</h2>
+      {userData &&
+        Object.keys(userData).map((key) => {
+          return (
+            <div>
+              {key}: {userData[key]}
+            </div>
+          );
+        })}
     </div>
   );
-}
+};
 
 export default App;
